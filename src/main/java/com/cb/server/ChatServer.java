@@ -20,13 +20,7 @@ public class ChatServer {
 
     public static void main(String... args) {
 
-        if (isStarted) {
-            restoreBackUp();
-            isStarted = false;
-        }
-        BackupServer backupServer = new BackupServer("ChatServerBackup");
-        Thread backup = new Thread(backupServer);
-        backup.start();
+        backup();
 
         try (
                 ServerSocket serverSocket = new ServerSocket(port)
@@ -44,37 +38,20 @@ public class ChatServer {
         }
     }
 
+    private static void backup() {
+        BackupServer backupServer = new BackupServer("ChatServerBackup");
 
+        boolean clientBackupExists = new File("/tmp/chatserverbackup_clients.ser").exists();
+        boolean bufferedMsgsBackupExists = new File("/tmp/chatserverbackup_bufferedMsgs.ser").exists();
 
-    public static void restoreBackUp(){
-        try {
-            FileInputStream fileIn = new FileInputStream("/tmp/chatserverbackup.ser");
-            ObjectInputStream objIn = new ObjectInputStream(fileIn);
-            bufferedClientMsgs = (Map<String, List<String>>) objIn.readObject();
-            objIn.close();
-            fileIn.close();
+        if (isStarted && clientBackupExists && bufferedMsgsBackupExists) {
+            backupServer.restoreBackUp();
+            isStarted = false;
         }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-        catch (ClassNotFoundException c) {
-            c.printStackTrace();
-        }
+
+        Thread backup = new Thread(backupServer);
+        backup.start();
     }
-
-    public static void createBackUp(){
-        try{
-            FileOutputStream fileOut = new FileOutputStream("/tmp/chatserverbackup.ser");
-            ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
-            objOut.writeObject(bufferedClientMsgs);
-            objOut.close();
-            fileOut.close();
-        }
-        catch(IOException ioe){
-            ioe.printStackTrace();
-        }
-    }
-
 
 
     private static String getName(DataInputStream din, DataOutputStream dout){

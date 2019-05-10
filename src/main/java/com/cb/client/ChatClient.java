@@ -26,7 +26,7 @@ public class ChatClient {
                     }
                     catch (IOException ioe){
 //                        ioe.printStackTrace();
-                        System.out.println();
+                        close(socket);
                         System.exit(1);
                     }
 
@@ -48,7 +48,7 @@ public class ChatClient {
                     }
                     catch (IOException ioe) {
 //                        ioe.printStackTrace();
-
+                        close(socket);
                         System.exit(1);
                     }
                 }
@@ -58,5 +58,15 @@ public class ChatClient {
         sendMsg.start();
         readMsg.start();
 
+    }
+
+    public static void close(Socket socket) {
+        try (
+                Socket s = socket
+        ) {
+            System.out.println();
+        } catch (IOException ioe) {
+            System.out.println();
+        }
     }
 }
