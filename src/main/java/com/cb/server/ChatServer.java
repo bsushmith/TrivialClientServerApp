@@ -11,13 +11,22 @@ import java.util.*;
 
 public class ChatServer {
 
-    public static Map<String, ClientHandler> clients = Collections.synchronizedMap(new HashMap<String, ClientHandler>());
-    public static Set<String> availableClients = Collections.synchronizedSet(new HashSet<String>());
-    public static  Map<String, List<String>> bufferedClientMsgs= Collections.synchronizedMap(new HashMap<String, List<String>>());
+    public static Map<String, ClientHandler> clients = Collections.synchronizedMap(new HashMap<String, ClientHandler>(8));
+    public static Set<String> availableClients = Collections.synchronizedSet(new HashSet<String>(8));
+    public static  Map<String, List<String>> bufferedClientMsgs= Collections.synchronizedMap(new HashMap<String, List<String>>(8));
 
     private static final int port = 59090;
+    private static boolean isStarted = true;
 
     public static void main(String... args) {
+
+        if (isStarted) {
+            restoreBackUp();
+            isStarted = false;
+        }
+        BackupServer backupServer = new BackupServer("ChatServerBackup");
+        Thread backup = new Thread(backupServer);
+        backup.start();
 
         try (
                 ServerSocket serverSocket = new ServerSocket(port)
@@ -34,6 +43,38 @@ public class ChatServer {
             System.exit(1);
         }
     }
+
+
+
+    public static void restoreBackUp(){
+        try {
+            FileInputStream fileIn = new FileInputStream("/tmp/chatserverbackup.ser");
+            ObjectInputStream objIn = new ObjectInputStream(fileIn);
+            bufferedClientMsgs = (Map<String, List<String>>) objIn.readObject();
+            objIn.close();
+            fileIn.close();
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        catch (ClassNotFoundException c) {
+            c.printStackTrace();
+        }
+    }
+
+    public static void createBackUp(){
+        try{
+            FileOutputStream fileOut = new FileOutputStream("/tmp/chatserverbackup.ser");
+            ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
+            objOut.writeObject(bufferedClientMsgs);
+            objOut.close();
+            fileOut.close();
+        }
+        catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+    }
+
 
 
     private static String getName(DataInputStream din, DataOutputStream dout){
