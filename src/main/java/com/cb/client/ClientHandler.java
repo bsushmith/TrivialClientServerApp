@@ -70,9 +70,7 @@ public class ClientHandler implements Runnable {
             removeClient(recipientClient);
             bufferMsg(recipientClient, finalClientMsg(msg));
         }
-
     }
-
 
     private int writeMsg(String clientName, String msg){
         try {

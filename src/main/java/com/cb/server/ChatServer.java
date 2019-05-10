@@ -11,13 +11,16 @@ import java.util.*;
 
 public class ChatServer {
 
-    public static Map<String, ClientHandler> clients = Collections.synchronizedMap(new HashMap<String, ClientHandler>());
-    public static Set<String> availableClients = Collections.synchronizedSet(new HashSet<String>());
-    public static  Map<String, List<String>> bufferedClientMsgs= Collections.synchronizedMap(new HashMap<String, List<String>>());
+    public static Map<String, ClientHandler> clients = Collections.synchronizedMap(new HashMap<String, ClientHandler>(8));
+    public static Set<String> availableClients = Collections.synchronizedSet(new HashSet<String>(8));
+    public static  Map<String, List<String>> bufferedClientMsgs= Collections.synchronizedMap(new HashMap<String, List<String>>(8));
 
     private static final int port = 59090;
+    private static boolean isStarted = true;
 
     public static void main(String... args) {
+
+        backup();
 
         try (
                 ServerSocket serverSocket = new ServerSocket(port)
@@ -33,6 +36,21 @@ public class ChatServer {
             System.err.println("Process terminated with error " + ioe.getStackTrace());
             System.exit(1);
         }
+    }
+
+    private static void backup() {
+        BackupServer backupServer = new BackupServer("ChatServerBackup");
+
+        boolean clientBackupExists = new File("/tmp/chatserverbackup_clients.ser").exists();
+        boolean bufferedMsgsBackupExists = new File("/tmp/chatserverbackup_bufferedMsgs.ser").exists();
+
+        if (isStarted && clientBackupExists && bufferedMsgsBackupExists) {
+            backupServer.restoreBackUp();
+            isStarted = false;
+        }
+
+        Thread backup = new Thread(backupServer);
+        backup.start();
     }
 
 
