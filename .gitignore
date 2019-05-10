@@ -1,0 +1,6 @@
+.idea/compiler.xml
+.idea/misc.xml
+.idea/sbt.xml
+.idea/sonarlint/
+.idea/workspace.xml
+target/
