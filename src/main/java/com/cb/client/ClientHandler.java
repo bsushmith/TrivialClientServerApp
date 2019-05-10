@@ -29,13 +29,13 @@ public class ClientHandler implements Runnable {
 
                 if (rcvd.equalsIgnoreCase("bye")) {
                     exitClient(this.name);
-                    System.out.println("Exiting Client 1");
+//                    System.out.println("Exiting Client 1");
                     break;
                 }
                 sendMsg(rcvd);
             }
             catch(IOException ioe){
-                System.out.println("Exiting Client 11");
+                //System.out.println("Exiting Client 11");
                 exitClient(this.name);
                 break;
             }
@@ -55,6 +55,14 @@ public class ClientHandler implements Runnable {
             } else {
                 removeClient(recipientClient);
                 bufferMsg(recipientClient, finalClientMsg(msg));
+            }
+        }
+        else {
+            try {
+                this.out.writeUTF("Client doesn't exist");
+            }
+            catch(IOException ioe) {
+                ioe.printStackTrace();
             }
         }
 
@@ -98,7 +106,7 @@ public class ClientHandler implements Runnable {
             System.out.println("Exiting client " + clientName);
         }
         catch (IOException ioe) {
-            System.out.println("CAN U SEE ME ?");
+            System.out.println("Exiting client");
         }
     }
 }

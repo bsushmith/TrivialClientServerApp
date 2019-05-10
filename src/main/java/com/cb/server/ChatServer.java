@@ -30,7 +30,7 @@ public class ChatServer {
                 t.start();
             }
         } catch (IOException ioe) {
-            System.err.println("Process errored out with 456:" + ioe.getStackTrace());
+            System.err.println("Process terminated with error " + ioe.getStackTrace());
             System.exit(1);
         }
     }
@@ -49,7 +49,7 @@ public class ChatServer {
             }
         }
         catch (IOException e) {
-            System.err.println("Caught Exception 123: ioe" + e.getStackTrace());
+            System.err.println("Caught Exception: ioe " + e.getStackTrace());
             System.exit(1);
         }
         return "-1";
@@ -107,6 +107,5 @@ public class ChatServer {
             System.out.println("Unable to read unread messages... ");
         }
     }
-
-
+    
 }
