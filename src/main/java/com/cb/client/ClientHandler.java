@@ -51,16 +51,16 @@ public class ClientHandler implements Runnable {
 
         if (ChatServer.clients.containsKey(recipientClient)) {
             if (ChatServer.availableClients.contains(recipientClient)) {
-                returnCode = writeMsg(recipientClient, finalClientMsg(recipientClient, msg));
+                returnCode = writeMsg(recipientClient, finalClientMsg(msg));
             } else {
                 removeClient(recipientClient);
-                bufferMsg(recipientClient, finalClientMsg(recipientClient, msg));
+                bufferMsg(recipientClient, finalClientMsg(msg));
             }
         }
 
         if (returnCode == -1) {
             removeClient(recipientClient);
-            bufferMsg(recipientClient, finalClientMsg(recipientClient, msg));
+            bufferMsg(recipientClient, finalClientMsg(msg));
         }
 
     }
@@ -77,8 +77,8 @@ public class ClientHandler implements Runnable {
         return 0;
     }
 
-    private String finalClientMsg(String clientName, String msg){
-        return clientName + ":" + msg;
+    private String finalClientMsg(String msg){
+        return this.name + ":" + msg;
     }
 
     private void bufferMsg(String clientName, String msg){
