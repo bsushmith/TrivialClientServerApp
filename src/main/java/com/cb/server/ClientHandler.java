@@ -7,22 +7,18 @@ import java.net.Socket;
 
 public class ClientHandler implements Runnable {
     private String name;
-    private Socket socket;
-    final private DataInputStream in;
-    final private DataOutputStream out;
+    private final Client client;
 
-    public ClientHandler(String name, Socket socket, DataInputStream in, DataOutputStream out)  {
-        this.name = name;
-        this.socket = socket;
-        this.in = in;
-        this.out = out;
+    public ClientHandler(Client client)  {
+        this.client = client;
+        this.name = client.getName();
     }
 
     public void run(){
         String rcvd;
         while(true) {
             try {
-                rcvd = in.readUTF();
+                rcvd = client.getReader().readUTF();
                 System.out.println(rcvd);
 
                 if (rcvd.equalsIgnoreCase("bye")) {
@@ -57,7 +53,7 @@ public class ClientHandler implements Runnable {
         }
         else {
             try {
-                this.out.writeUTF("Client doesn't exist");
+                this.client.getWriter().writeUTF("Client doesn't exist");
             }
             catch(IOException ioe) {
                 ioe.printStackTrace();
@@ -72,7 +68,7 @@ public class ClientHandler implements Runnable {
 
     private int writeMsg(String clientName, String msg){
         try {
-            ChatServer.clients.get(clientName).out.writeUTF(msg);
+            ChatServer.clients.get(clientName).getWriter().writeUTF(msg);
         }
         catch (IOException ioe) {
             System.out.println("RClient is offline");
@@ -95,9 +91,9 @@ public class ClientHandler implements Runnable {
 
     private void exitClient(String clientName){
         try (
-                DataInputStream dis = this.in;
-                DataOutputStream dos = this.out;
-                Socket s = this.socket
+                DataInputStream dis = client.getReader();
+                DataOutputStream dos = client.getWriter();
+                Socket s = client.getSocket();
                 ) {
             System.out.println("Exiting client " + clientName);
         }

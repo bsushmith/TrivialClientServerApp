@@ -9,7 +9,7 @@ import java.util.*;
 
 public class ChatServer {
 
-    public static Map<String, ClientHandler> clients = Collections.synchronizedMap(new HashMap<String, ClientHandler>(8));
+    public static Map<String, Client> clients = Collections.synchronizedMap(new HashMap<String, Client>(8));
     public static Set<String> availableClients = Collections.synchronizedSet(new HashSet<String>(8));
     public static  Map<String, List<String>> bufferedClientMsgs= Collections.synchronizedMap(new HashMap<String, List<String>>(8));
 
@@ -81,9 +81,10 @@ public class ChatServer {
             DataInputStream din = new DataInputStream(socket.getInputStream());
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             String name = getName(din, dout);
-            clientHandler = new ClientHandler(name, socket, din, dout);
+            Client client = new Client(socket, din, dout, name);
+            clientHandler = new ClientHandler(client);
             availableClients.add(name);
-            clients.put(name,clientHandler);
+            clients.put(name,client);
             if (!bufferedClientMsgs.containsKey(name)) {
                 bufferedClientMsgs.put(name, new ArrayList<String>());
             }
