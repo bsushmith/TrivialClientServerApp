@@ -14,31 +14,52 @@ public class ClientHandler implements Runnable {
         this.name = client.getName();
     }
 
-    public void run(){
-        String rcvd;
-        while(true) {
-            try {
-                rcvd = client.getReader().readUTF();
-                System.out.println(rcvd);
+    private void broadcastOnlineStatus() {
+        try {
+            for (Client c : ChatServer.clients.values()) {
+                if (ChatServer.availableClients.contains(c.getName()) && c.getName() != name)
+                    c.getWriter().writeUTF(name + " is Online");
+            }
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
 
-                if (rcvd.equalsIgnoreCase("bye")) {
-                    exitClient(this.name);
-                    removeClient(this.name);
-                    break;
+    private void getOnlineClientsStatus(){
+        try {
+            if (ChatServer.availableClients.size() > 1) {
+                client.getWriter().writeUTF("Online Clients: ");
+                for (String s : ChatServer.availableClients) {
+                    if (name != s)
+                        client.getWriter().writeUTF(s);
                 }
-                sendMsg(rcvd);
             }
-            catch(IOException ioe){
-                exitClient(this.name);
-                removeClient(this.name);
-                break;
+            else client.getWriter().writeUTF("You are the lone warrior on this Server");
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    private void broadcastExitStatus(){
+        try {
+            for (Client c : ChatServer.clients.values()) {
+                if ( ChatServer.availableClients.contains(c.getName()) && c.getName() != name)
+                    c.getWriter().writeUTF(name + " went Offline");
             }
+        }
+        catch (IOException ioe ) {
+            ioe.printStackTrace();
         }
     }
 
     private void sendMsg(String rcvd) {
 
         StringTokenizer s = new StringTokenizer(rcvd, ":");
+        if (s.countTokens() != 2){
+            return;
+        }
         String recipientClient = s.nextToken();
         String msg = s.nextToken();
         int returnCode = 0;
@@ -87,6 +108,7 @@ public class ClientHandler implements Runnable {
 
     private void removeClient(String clientName){
         ChatServer.availableClients.remove(clientName);
+        broadcastExitStatus();
     }
 
     private void exitClient(String clientName){
@@ -101,4 +123,29 @@ public class ClientHandler implements Runnable {
             System.out.println("Exiting client");
         }
     }
+
+    public void run(){
+        broadcastOnlineStatus();
+        getOnlineClientsStatus();
+        String rcvd;
+        while(true) {
+            try {
+                rcvd = client.getReader().readUTF();
+                System.out.println(rcvd);
+
+                if (rcvd.equalsIgnoreCase("bye")) {
+                    exitClient(this.name);
+                    removeClient(this.name);
+                    break;
+                }
+                sendMsg(rcvd);
+            }
+            catch(IOException ioe){
+                exitClient(this.name);
+                removeClient(this.name);
+                break;
+            }
+        }
+    }
+
 }
