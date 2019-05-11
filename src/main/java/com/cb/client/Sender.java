@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class Sender implements Runnable{
-    private Socket socket;
+    private final Socket socket;
 
     public Sender(Socket socket){
         this.socket = socket;
@@ -19,7 +19,7 @@ public class Sender implements Runnable{
             try(
                     DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                     BufferedReader inCli = new BufferedReader(new InputStreamReader(System.in));
-                    Socket socket = this.socket;
+                    Socket socket = this.socket
                     ) {
                 while (true) {
                     String msg = inCli.readLine();

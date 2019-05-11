@@ -11,7 +11,7 @@ public class ChatServer {
 
     public static Map<String, Client> clients = Collections.synchronizedMap(new HashMap<String, Client>(8));
     public static Set<String> availableClients = Collections.synchronizedSet(new HashSet<String>(8));
-    public static  Map<String, List<String>> bufferedClientMsgs= Collections.synchronizedMap(new HashMap<String, List<String>>(8));
+    public static Map<String, List<String>> bufferedClientMsgs= Collections.synchronizedMap(new HashMap<String, List<String>>(8));
 
     private static final int port = 59090;
     private static boolean isStarted = true;
@@ -31,7 +31,7 @@ public class ChatServer {
                 t.start();
             }
         } catch (IOException ioe) {
-            System.err.println("Process terminated with error " + ioe.getStackTrace());
+            System.err.println("Process terminated with error " + Arrays.toString(ioe.getStackTrace()));
             System.exit(1);
         }
     }
@@ -43,7 +43,7 @@ public class ChatServer {
         boolean bufferedMsgsBackupExists = new File("/tmp/chatserverbackup_bufferedMsgs.ser").exists();
 
         if (isStarted && clientBackupExists && bufferedMsgsBackupExists) {
-            backupServer.restoreBackUp();
+            BackupServer.restoreBackUp();
             isStarted = false;
         }
 
@@ -96,10 +96,8 @@ public class ChatServer {
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
-        } finally {
-            return clientHandler;
         }
-
+        return clientHandler;
     }
 
 

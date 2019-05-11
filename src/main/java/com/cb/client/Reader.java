@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class Reader implements Runnable {
-    private Socket socket;
+    private final Socket socket;
 
     public Reader(Socket socket){
         this.socket = socket;

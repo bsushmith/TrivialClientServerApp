@@ -6,7 +6,7 @@ import java.net.Socket;
 
 
 public class ClientHandler implements Runnable {
-    private String name;
+    private final String name;
     private final Client client;
 
     public ClientHandler(Client client)  {
@@ -17,7 +17,7 @@ public class ClientHandler implements Runnable {
     private void broadcastOnlineStatus() {
         try {
             for (Client c : ChatServer.clients.values()) {
-                if (ChatServer.availableClients.contains(c.getName()) && c.getName() != name)
+                if (ChatServer.availableClients.contains(c.getName()) && !c.getName().equals(name))
                     c.getWriter().writeUTF(name + " is Online");
             }
         }
@@ -31,7 +31,7 @@ public class ClientHandler implements Runnable {
             if (ChatServer.availableClients.size() > 1) {
                 client.getWriter().writeUTF("Online Clients: ");
                 for (String s : ChatServer.availableClients) {
-                    if (name != s)
+                    if (!name.equals(s))
                         client.getWriter().writeUTF(s);
                 }
             }
@@ -45,7 +45,7 @@ public class ClientHandler implements Runnable {
     private void broadcastExitStatus(){
         try {
             for (Client c : ChatServer.clients.values()) {
-                if ( ChatServer.availableClients.contains(c.getName()) && c.getName() != name)
+                if ( ChatServer.availableClients.contains(c.getName()) && !c.getName().equals(name))
                     c.getWriter().writeUTF(name + " went Offline");
             }
         }
@@ -115,7 +115,7 @@ public class ClientHandler implements Runnable {
         try (
                 DataInputStream dis = client.getReader();
                 DataOutputStream dos = client.getWriter();
-                Socket s = client.getSocket();
+                Socket s = client.getSocket()
                 ) {
             System.out.println("Exiting client " + clientName);
         }
