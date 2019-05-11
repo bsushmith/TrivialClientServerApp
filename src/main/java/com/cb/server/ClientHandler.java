@@ -1,6 +1,4 @@
-package com.cb.client;
-
-import com.cb.server.ChatServer;
+package com.cb.server;
 
 import java.io.*;
 import java.util.*;
@@ -29,14 +27,14 @@ public class ClientHandler implements Runnable {
 
                 if (rcvd.equalsIgnoreCase("bye")) {
                     exitClient(this.name);
-//                    System.out.println("Exiting Client 1");
+                    removeClient(this.name);
                     break;
                 }
                 sendMsg(rcvd);
             }
             catch(IOException ioe){
-                //System.out.println("Exiting Client 11");
                 exitClient(this.name);
+                removeClient(this.name);
                 break;
             }
         }
