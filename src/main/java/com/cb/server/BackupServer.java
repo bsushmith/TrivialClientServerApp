@@ -6,6 +6,8 @@ import java.util.Map;
 
 public class BackupServer implements Runnable {
     private String name;
+    private static String clientsBackupPath = "/tmp/chatserverbackup_clients.ser";
+    private static String bufferedMsgsbackupPath = "/tmp/chatserverbackup_bufferedMsgs.ser";
 
     public BackupServer(String name) {
         this.name = name;
@@ -16,7 +18,7 @@ public class BackupServer implements Runnable {
         while (true) {
             createBackUp();
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1500);
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
@@ -25,18 +27,18 @@ public class BackupServer implements Runnable {
 
     public static void createBackUp() {
 
-//        backUpClients();
+        backUpClients();
         backUpBufferedMsgs();
     }
 
     public static void restoreBackUp() {
-//        restoreClients();
+        restoreClients();
         restoreBufferedMsgs();
     }
 
     public static void backUpBufferedMsgs() {
         try (
-                FileOutputStream fileOut = new FileOutputStream("/tmp/chatserverbackup_bufferedMsgs.ser");
+                FileOutputStream fileOut = new FileOutputStream(bufferedMsgsbackupPath);
                 ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
         ) {
             objOut.writeObject(ChatServer.bufferedClientMsgs);
@@ -45,42 +47,38 @@ public class BackupServer implements Runnable {
             ioe.printStackTrace();
         }
     }
-//
-//    public static void backUpClients() {
-//        try (
-//                FileOutputStream fileOut = new FileOutputStream("/tmp/chatserverbackup_clients.ser");
-//                ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
-//        ) {
-//            objOut.writeObject(ChatServer.clients);
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
-//    }
-//
-//    public static void restoreClients() {
-//        try (
-//                FileInputStream fileIn = new FileInputStream("/tmp/chatserverbackup_clients.ser");
-//                ObjectInputStream objIn = new ObjectInputStream(fileIn);
-//        ) {
-//            ChatServer.clients = (Map<String, ClientHandler>) objIn.readObject();
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        } catch (ClassNotFoundException c) {
-//            c.printStackTrace();
-//        }
-//    }
+
+    public static void backUpClients() {
+        try (
+                FileOutputStream fileOut = new FileOutputStream(clientsBackupPath);
+                ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
+        ) {
+            objOut.writeObject(ChatServer.clients);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    public static void restoreClients() {
+        try (
+                FileInputStream fileIn = new FileInputStream(clientsBackupPath);
+                ObjectInputStream objIn = new ObjectInputStream(fileIn);
+        ) {
+            ChatServer.clients = (Map<String, Client>) objIn.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void restoreBufferedMsgs() {
 
         try (
-                FileInputStream fileIn = new FileInputStream("/tmp/chatserverbackup_bufferedMsgs.ser");
+                FileInputStream fileIn = new FileInputStream(bufferedMsgsbackupPath);
                 ObjectInputStream objIn = new ObjectInputStream(fileIn);
         ) {
             ChatServer.bufferedClientMsgs = (Map<String, List<String>>) objIn.readObject();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (ClassNotFoundException c) {
-            c.printStackTrace();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
